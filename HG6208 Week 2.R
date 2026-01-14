@@ -1,87 +1,42 @@
-# sets up a dataframe with the x- and y-values according to the standard normal distribution using the function 'dnorm'
+getwd()   # tells you where the current working directory is
 
-x <- seq(from = -5, to = 5, by = 0.01)
-dist <- as.data.frame(x)
-dist$y <- dnorm(x, mean = 0, sd = 1)
-
-
-# plots the graph using the x- and y-values in the dataframe
-
-plot(dist$x,dist$y, lty = 1, type = "l", ylim = c(0,1), col = "blue")
-
-
-# changing the mean and standard deviation of the distribution
-
-mean <- 2
-stdev <- 0.5
-dist$y <- dnorm(x, mean = mean, sd = stdev)
-lines(dist$x,dist$y, lty = 2, col = "blue")
-
-
-# transforming the distribution back to the standard normal distribution
-
-dist$x <- (dist$x - 2)/0.5
-dist$y <- dist$y*0.5
-lines(dist$x,dist$y, lty = 2, col = "red")
-
-# downloads the data file from the course's GitHub
-path <- ""
-download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%202%20-%20RT%20data.txt", paste0(path, "Week 2 - RT data.txt"), method = "libcurl")
-download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%202%20-%20Heights.txt", paste0(path, "Week 2 - Heights.txt"), method = "libcurl")
-
-# simulation of distribution of sample means
-
-mean <- 0
-stdev <- 2
-
-# create a dataset of 1000 numbers from a normal distribution of mean 'mean' and standard deviation 'stdev'
-x <- rnorm(1000, mean, stdev)
-dist <- as.data.frame(x)
-
-# plot a histogram of the dataset
-hist(dist$x)
-
-# create a dataset of sample means with sample size 'n' and the number of samples 'num_samples'
-n <- 5
-num_samples <- 5000
-
-samples <- data.frame(matrix(vector(), num_samples, 1, dimnames=list(c(), "mean")))
-
-for (i in seq_along(1:(num_samples))) {
-   samples$mean[i] <- mean(sample(dist$x, n))  
+# creates /data folder if it is not already there
+if (!dir.exists("data")) {
+   dir.create("data")
 }
 
-hist(samples$mean)
-
-# calculates the actual standard deviation of the sample means as well as the calculated standard deviation from the population standard deviation
-sd(samples$mean)
-stdev/sqrt(n)
-
-# sampling using the heights data
-
-heights <- read.csv(paste0(path, "Week 2 - Heights.txt"), header = TRUE, stringsAsFactors = TRUE)
-
-n <- 5
-num_samples <- 5000
-
-samples <- data.frame(matrix(vector(), num_samples, 1, dimnames=list(c(), "mean")))
-
-for (i in seq_along(1:(num_samples))) {
-  samples$mean[i] <- mean(sample(heights$Height, n))  
+# downloads the data file from the course's GitHub if it is not already there
+if (!file.exists("data/Week 2 - NSC 3003.txt")) {
+   download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%202%20-%20NSC%203003.txt", paste0("data/Week 2 - NSC 3003.txt"), method = "libcurl")
 }
 
-hist(samples$mean)
+# read the data file
+conv <- read.delim(file = paste0(ifelse (exists("path"), path, path <- "data/"), "Week 2 - NSC 3003.txt"), header=TRUE, skipNul = TRUE, encoding="UTF-8", stringsAsFactors=FALSE)
+
+if(!require(stringr)){
+  install.packages("stringr")   # installs the 'stringr' package (for 'str_count') if it isn't installed
+  library(stringr)   # loads the package on first install
+}
 
 
-# t-tests
+# counts the number of 'lah's in each utterance
+conv$count <- str_count(conv$text, r"{\[lah\]}")
 
-Data <- read.delim(file = paste0(path, "Week 2 - RT data.txt"), header = TRUE, stringsAsFactors = TRUE)
-levels(Data$Drug)
-levels(Data$Participant)
+# removes silence and noise markers
+conv <- subset(conv, text != "<S>" & text != "<Z>")
 
-t.test(RT ~ Drug, data = Data)
-t.test(Pair(RT[Drug == "Yes"], RT[Drug == "No"]) ~ 1, data = Data[order(Data$Participant),])
+# splits the conversation by speaker
+conv_a <- subset(conv, speaker == "A:")
+conv_b <- subset(conv, speaker == "B:")
 
-# non-parametric tests
-wilcox.test(RT ~ Drug, data = Data)
-wilcox.test(Pair(RT[Drug == "Yes"], RT[Drug == "No"]) ~ 1, data = Data[order(Data$Participant),])
+# total 'lah's used by each speaker
+sum(conv_a$count)
+sum(conv_b$count)
+
+# calculates the number of words in each utterance
+conv_a$wordcount <- str_count(conv_a$text, " ") + 1
+conv_b$wordcount <- str_count(conv_b$text, " ") + 1
+
+# total wordcount for each speaker
+sum(conv_a$wordcount)
+sum(conv_b$wordcount)
