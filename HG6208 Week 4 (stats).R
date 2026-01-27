@@ -28,10 +28,14 @@ dist$y <- dist$y*2       # keeping the area under the curve constant after the t
 lines(dist$x,dist$y, lty = 2, lwd = 2, col = "red")
 
 
-# downloads the data file from the course's GitHub
-path <- ""
-download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%202%20-%20RT%20data.txt", paste0(path, "Week 2 - RT data.txt"), method = "libcurl")
-download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%202%20-%20Heights.txt", paste0(path, "Week 2 - Heights.txt"), method = "libcurl")
+# downloads the data file from the course's GitHub if it is not already there
+if (!file.exists("data/Week 4 - Heights.txt")) {
+   download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%204%20-%20Heights.txt", paste0("data/Week 4 - Heights.txt"), method = "libcurl")
+}
+
+if (!file.exists("data/Week 4 - RT data.txt")) {
+   download.file("https://github.com/ljunwen/HG6208/raw/main/data/Week%204%20-%20RT%20data.txt", paste0("data/Week 4 - RT data.txt"), method = "libcurl")
+}
 
 # simulation of distribution of sample means
 
@@ -61,9 +65,11 @@ hist(samples$mean)
 sd(samples$mean)
 stdev/sqrt(n)
 
+
 # sampling using the heights data
 
-heights <- read.csv(paste0(path, "Week 2 - Heights.txt"), header = TRUE, stringsAsFactors = TRUE)
+# read the data file
+heights <- read.delim(file = paste0(ifelse (exists("path"), path, path <- "data/"), "Week 4 - Heights.txt"), header = TRUE, stringsAsFactors = TRUE)
 hist(heights$Height)
 
 n <- 5
@@ -72,15 +78,29 @@ num_samples <- 5000
 samples <- data.frame(matrix(vector(), num_samples, 1, dimnames=list(c(), "mean")))
 
 for (i in seq_along(1:(num_samples))) {
-  samples$mean[i] <- mean(sample(heights$Height, n))  
+   samples$mean[i] <- mean(sample(heights$Height, n))  
 }
 
 hist(samples$mean)
 
+# distribution of sample differences
+
+samples <- data.frame(matrix(vector(), num_samples, 2, dimnames=list(c(), c("A", "B"))))
+
+for (i in seq_along(1:(num_samples))) {
+   heights <- heights[sample(nrow(heights)), ]
+   samples$A[i] <- mean(heights$Height[c(1:9)])
+   samples$B[i] <- mean(heights$Height[c(10:18)])
+}
+
+samples$difference <- samples$B - samples$A
+
+hist(samples$difference)
+
 
 # t-tests
 
-Data <- read.delim(file = paste0(path, "Week 2 - RT data.txt"), header = TRUE, stringsAsFactors = TRUE)
+Data <- read.delim(file = paste0(ifelse (exists("path"), path, path <- "data/"), "Week 4 - RT data.txt"), header = TRUE, stringsAsFactors = TRUE)
 levels(Data$Drug)
 levels(Data$Participant)
 
