@@ -1,0 +1,12 @@
+Nationality	Ethnicity	Code
+Singapore	Chinese	SGCH
+Singapore	Eurasian	SGEU
+Singapore	Indian	SGIN
+Singapore	Malay	SGMA
+Singapore	Chinese-Indian	SGCI
+Singapore	Chinese-Malay	SGCM
+Singapore	Chinese-Eurasian	SGCESingapore	Others	SGSISingapore	Others	SGMXSingapore	Others	SGPHSingapore	Others	SGXXSingapore	Others	SGBESingapore	Others	SGAMSingapore	Others	SGARIndia	Indian	ININ
+Malaysia	Malay	MM
+China	Chinese	CNCH
+Taiwan	Chinese	TWCHHong Kong	Chinese	HKCHMalaysian	Chinese	MYCHMyanmar	Chinese	MYCHMalaysia	Malay	MYMAIndonesia	Chinese	IDCH
+Indonesia	Others	IDXXKorea	Others	KRXXVietnam	Others	VNXXThailand	Others	THXXPhilippines	Others	PHXXJapan	Others	JPXXUnited States	Others	USXXGreat Britain	Others	GBPAFrance	Others	FRXXAustralia	Others	AUXXSaudi Arabia	Others	SAARSpain	Others	ESXXOthers	Others	XXXX
